@@ -725,3 +725,7 @@ table.tb {
   display: inline-block;
   width: 49%;
 }
+
+input[type="range"] {
+  width: 100%;
+}

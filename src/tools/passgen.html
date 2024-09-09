@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Password Generator</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <a href="../index.html">Back</a>
+        <h2>Password Generator</h2>
+        <input type="text" id="password" readonly style="width: 100%;"><br><br>
+        <label for="length" id="lengthDisplay">Password Length: 16</label>
+        <input type="range" id="length" min="4" max="32" value="16" /><br>
+
+        <input type="checkbox" id="includeLower" checked> Lowercase
+        <input type="checkbox" id="includeUpper" checked> Uppercase
+        <input type="checkbox" id="includeNumbers" checked> Numbers
+        <input type="checkbox" id="includeSymbols" checked> Symbols<br><br>
+
+        <button onclick="generatePassword()">Regenerate</button>
+        <button id="copy" onclick="copyToClipboard()">Copy to Clipboard</button>
+    </div>
+
+    <script>
+
+        // Main function
+        const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+        const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const numbers = '0123456789';
+        const symbols = '!@#$%^&*()_+{}:"<>?|[];,./`~';
+
+        function generatePassword() {
+            const length = document.getElementById('length').value;
+            const includeLower = document.getElementById('includeLower').checked;
+            const includeUpper = document.getElementById('includeUpper').checked;
+            const includeNumbers = document.getElementById('includeNumbers').checked;
+            const includeSymbols = document.getElementById('includeSymbols').checked;
+
+            let charset = '';
+            if (includeLower) charset += lowercase;
+            if (includeUpper) charset += uppercase;
+            if (includeNumbers) charset += numbers;
+            if (includeSymbols) charset += symbols;
+
+            if (charset === '') {
+                document.getElementById('includeLower').checked = true;
+                charset += lowercase;
+            }
+
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * charset.length);
+                password += charset[randomIndex];
+            }
+
+            document.getElementById('password').value = password;
+        }
+
+        // Update the range slider and generate a new password
+
+        let rangeslider = document.getElementById("length");
+
+        rangeslider.oninput = function () {
+            document.getElementById("lengthDisplay").innerHTML = "Password Length: " + this.value;
+            generatePassword();
+        }
+
+        // Copy to Clipboard button
+        function copyToClipboard() {
+            const passwordField = document.getElementById('password');
+            passwordField.select();
+            passwordField.setSelectionRange(0, 99999); // For mobile devices
+
+            navigator.clipboard.writeText(passwordField.value).then(() => {
+                document.getElementById('copy').innerHTML = 'Copied!'; // Show success message
+                setTimeout(resetCopyButton, 2500);
+            }, () => {
+                alert('Failed to copy password.');
+            });
+        }
+
+        function resetCopyButton() {
+            document.getElementById('copy').innerHTML = 'Copy to Clipboard';
+        }
+
+        // Add event listeners to checkboxes to regenerate the password on change
+        document.getElementById('includeLower').addEventListener('change', generatePassword);
+        document.getElementById('includeUpper').addEventListener('change', generatePassword);
+        document.getElementById('includeNumbers').addEventListener('change', generatePassword);
+        document.getElementById('includeSymbols').addEventListener('change', generatePassword);
+
+        // Automatically generate password when the page loads
+        window.onload = generatePassword;
+    </script>
+</body>
+
+</html>
