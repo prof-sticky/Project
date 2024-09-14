@@ -10,19 +10,20 @@
 
 <body>
     <div class="wrapper">
-        <a href="../index.html">Back</a>
         <h2>Password Generator</h2>
-        <input type="text" id="password" readonly style="width: 100%;"><br><br>
+        <a href="../index.html">Back</a>
+
+        <input type="text" id="password" class="w100" style="text-align: center;"><br><br>
         <label for="length" id="lengthDisplay">Password Length: 16</label>
-        <input type="range" id="length" min="4" max="32" value="16" /><br>
+        <input type="range" id="length" class="w100" min="4" max="32" value="16" /><br>
 
         <input type="checkbox" id="includeLower" checked> Lowercase
         <input type="checkbox" id="includeUpper" checked> Uppercase
         <input type="checkbox" id="includeNumbers" checked> Numbers
         <input type="checkbox" id="includeSymbols" checked> Symbols<br><br>
 
-        <button onclick="generatePassword()">Regenerate</button>
-        <button id="copy" onclick="copyToClipboard()">Copy to Clipboard</button>
+        <button class="w50" onclick="generatePassword()">Regenerate</button>
+        <button id="copy" class="w50" onclick="copyToClipboard()">Copy to Clipboard</button>
     </div>
 
     <script>
