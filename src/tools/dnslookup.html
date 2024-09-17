@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Lookup</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <h2>DNS Lookup</h2>
+        <a href="../index.html">Back</a>
+
+        <label for="domainInput">Domain Lookup: </label>
+        <input type="text" id="domainInput" value="downe.com.au">
+        <button onclick="dostuff()">Go!</button>
+
+        <div id="result"></div>
+
+    </div>
+
+    <script>
+        
+        async function dostuff() {
+
+            const domain = document.getElementById('domainInput').value;
+
+            var response = await fetch('https://dns.google/resolve?name=' + domain);
+            var dnsreply = await response.json();
+            console.log(dnsreply.Answer[0].data);
+
+            document.getElementById('result').innerHTML = "IP Address: " + dnsreply.Answer[0].data;
+
+        }
+
+    </script>
+
+</body>
+
+</html>
