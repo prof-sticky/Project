@@ -17,21 +17,60 @@
         <input type="text" id="domainInput" value="downe.com.au">
         <button onclick="dostuff()">Go!</button>
 
-        <div id="result"></div>
+        <table class="tb" id="Result"></table>
 
     </div>
 
     <script>
-        
+
+        // Insert results into table
+
+        function insert_Row(title, result) {
+            var x = document.getElementById('Result').insertRow(-1);
+            var y = x.insertCell(0);
+            var z = x.insertCell(1);
+            y.innerHTML = title;
+            z.innerHTML = result;
+        }
+
+        // Main DNS Lookup function
+
         async function dostuff() {
 
+            async function lookup(item) {
+                try {
+                    console.log('https://dns.google/resolve?name=' + domain + '&type=' + item);
+                    var response = await fetch('https://dns.google/resolve?name=' + domain + '&type=' + item);
+
+                    // Check if the fetch was successful
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    var dnsreply = await response.json();
+
+                    // Check if dnsreply.Answer exists and has valid data
+                    if (dnsreply.Answer && dnsreply.Answer.length > 0) {
+                        insert_Row(`${item} Record:`, dnsreply.Answer[0].data)
+                    } else {
+                        insert_Row('No records found for type:', item)
+                    }
+
+                } catch (error) {
+                    console.error(`Error fetching DNS record for type: ${item}`, error);
+                }
+            }
+
+            // Get domain from search box
             const domain = document.getElementById('domainInput').value;
 
-            var response = await fetch('https://dns.google/resolve?name=' + domain);
-            var dnsreply = await response.json();
-            console.log(dnsreply.Answer[0].data);
+            // Define all the record types to look up and search through
+            const recordtypes = ['A', 'AAAA', 'CNAME', 'TXT', 'NS', 'MX'];
 
-            document.getElementById('result').innerHTML = "IP Address: " + dnsreply.Answer[0].data;
+            // Do a DNS lookup for each type of record
+            recordtypes.forEach(lookup);
+
+            //   document.getElementById('result').innerHTML = 'IP Address: ' + dnsreply.Answer[0].data;
 
         }
 
