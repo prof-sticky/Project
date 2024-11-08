@@ -14,8 +14,8 @@
         <a href="../index.html">Back</a>
 
         <div id="form">
-            <label for="domainInput">Domain Lookup: </label>
-            <input type="text" id="domainInput" value="downe.com.au">
+            <label for="domainInput">Domain: </label>
+            <input type="text" id="domainInput" value="downe.com.au" style="width: 70%;">
             <button onclick="main()">Go!</button>
         </div>
 
@@ -49,74 +49,102 @@
             // Await all lookups before displaying results
             await Promise.all(recordtypes.map(lookup));
 
-            // Loop through the MX records and split the data string into mailserver and priority
-            dnsresult.MX.forEach(record => {
-                const [priority, mailServer] = record.data.split(' ');
-                record.priority = priority;
-                record.mailServer = mailServer;
-            });
+            // Process MX records (for sorting by priority, etc.)
+            if (dnsresult.MX) {
+                dnsresult.MX.forEach(record => {
+                    const [priority, mailServer] = record.data.split(' ');
+                    record.priority = parseInt(priority, 10);
+                    record["Mail Server"] = mailServer;
+                });
+                dnsresult.MX.sort((a, b) => a.priority - b.priority);
+            }
 
-            console.log(dnsresult);
+            // Sort dnsresult by desired record type order
+            const sortedDnsResult = Object.fromEntries(
+                recordtypes
+                    .filter(type => dnsresult[type]) // Only include types that exist in dnsresult
+                    .map(type => [type, dnsresult[type]]) // Map each type to its records
+            );
+
+            console.log(sortedDnsResult);
 
             // Display results on the page
-            displayResults(dnsresult);
+            displayResults(sortedDnsResult);
         }
 
         function displayResults(dnsresult) {
-    const dnsResultDiv = document.getElementById('dnsresult');
-    dnsResultDiv.innerHTML = ''; // Clear previous results
+            const dnsResultDiv = document.getElementById('dnsresult');
+            dnsResultDiv.innerHTML = ''; // Clear previous results
 
-    // Define the columns to include based on the record type
-    const includeColumnsMapping = {
-        A: ["data", "TTL"],
-        AAAA: ["data", "TTL"],
-        MX: ["mailServer", "priority", "TTL"],
-        CNAME: ["data", "TTL"],
-        TXT: ["data", "TTL"],
-    };
+            // Define the columns to include based on the record type
+            const includeColumnsMapping = {
+                A: ["IPv4 Address", "TTL"],
+                AAAA: ["IPv6 Address", "TTL"],
+                MX: ["Mail Server", "Priority", "TTL"],
+                CNAME: ["Canonical Name", "TTL"],
+                TXT: ["Text Record", "TTL"],
+                NS: ["Name Server", "TTL"]
+            };
 
-    // Iterate through each record type in dnsresult and create a table for each
-    for (const [recordType, records] of Object.entries(dnsresult)) {
-        const title = document.createElement('h3');
-        title.textContent = `${recordType} Records`;
-        dnsResultDiv.appendChild(title);
+            // Define the data property renaming based on record type
+            const dataRenameMapping = {
+                A: "IPv4 Address",
+                AAAA: "IPv6 Address",
+                CNAME: "Canonical Name",
+                TXT: "Text Record",
+                NS: "Name Server"
+            };
 
-        // Get columns for the current record type or default to ["data", "TTL"]
-        const includeColumns = includeColumnsMapping[recordType] || ["data", "TTL"];
-        
-        const table = createTable(records, includeColumns);
-        dnsResultDiv.appendChild(table);
-    }
-}
+            // Iterate through each record type in dnsresult and create a table for each
+            for (const [recordType, records] of Object.entries(dnsresult)) {
+                const title = document.createElement('h2');
+                title.textContent = `${recordType} Records`;
+                dnsResultDiv.appendChild(title);
 
-// Create table with dynamic columns
-function createTable(data, includeColumns) {
-    const table = document.createElement('table');
+                // Get columns for the current record type or default to ["data", "TTL"]
+                const includeColumns = includeColumnsMapping[recordType] || ["data", "TTL"];
 
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
-    includeColumns.forEach(headerText => {
-        const th = document.createElement('th');
-        th.textContent = headerText;
-        headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
+                // Rename the "data" field in each record if needed
+                records.forEach(record => {
+                    if (dataRenameMapping[recordType] && record.data) {
+                        record[dataRenameMapping[recordType]] = record.data;
+                        delete record.data;
+                    }
+                });
 
-    const tbody = document.createElement('tbody');
-    data.forEach(rowData => {
-        const row = document.createElement('tr');
-        includeColumns.forEach(key => {
-            const td = document.createElement('td');
-            td.textContent = rowData[key] || '-';
-            row.appendChild(td);
-        });
-        tbody.appendChild(row);
-    });
-    table.appendChild(tbody);
+                const table = createTable(records, includeColumns);
+                dnsResultDiv.appendChild(table);
+            }
+        }
 
-    return table;
-}
+        // Create table with dynamic columns
+        function createTable(data, includeColumns) {
+            const table = document.createElement('table');
+
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            includeColumns.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            data.forEach(rowData => {
+                const row = document.createElement('tr');
+                includeColumns.forEach(key => {
+                    const td = document.createElement('td');
+                    td.textContent = rowData[key] || '-';
+                    row.appendChild(td);
+                });
+                tbody.appendChild(row);
+            });
+            table.appendChild(tbody);
+
+            return table;
+        }
     </script>
 
 </body>

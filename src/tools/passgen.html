@@ -13,7 +13,6 @@
         <h2>Password Generator</h2>
         <a href="../index.html">Back</a>
 
-        <input type="text" id="password" class="w100" style="text-align: center;"><br><br>
         <label for="length" id="lengthDisplay">Password Length: 16</label>
         <input type="range" id="length" class="w100" min="4" max="32" value="16" /><br>
 
@@ -21,6 +20,8 @@
         <input type="checkbox" id="includeUpper" checked> Uppercase
         <input type="checkbox" id="includeNumbers" checked> Numbers
         <input type="checkbox" id="includeSymbols" checked> Symbols<br><br>
+
+        <input type="text" id="password" class="w100" style="text-align: center;"><br><br>
 
         <button class="w50" onclick="generatePassword()">Regenerate</button>
         <button id="copy" class="w50" onclick="copyToClipboard()">Copy to Clipboard</button>
