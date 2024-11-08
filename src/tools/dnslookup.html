@@ -53,10 +53,10 @@
             if (dnsresult.MX) {
                 dnsresult.MX.forEach(record => {
                     const [priority, mailServer] = record.data.split(' ');
-                    record.priority = parseInt(priority, 10);
+                    record.Priority = priority;
                     record["Mail Server"] = mailServer;
                 });
-                dnsresult.MX.sort((a, b) => a.priority - b.priority);
+                dnsresult.MX.sort((a, b) => a.Priority - b.Priority);
             }
 
             // Sort dnsresult by desired record type order
