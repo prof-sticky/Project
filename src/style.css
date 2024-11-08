@@ -97,6 +97,7 @@ label[type="button"] {
   padding: 0.5rem 0.9rem;
   text-decoration: none;
   line-height: normal;
+  transition-duration: 0.3s;
 }
 
 .button[aria-disabled="true"], 

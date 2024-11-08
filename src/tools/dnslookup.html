@@ -39,7 +39,8 @@
                     if (dnsreply.Answer && dnsreply.Answer.length > 0) {
                         dnsresult[item] = dnsreply.Answer;
                     } else {
-                        dnsresult[item] = [{ data: `No records found for type: ${item}` }];
+                        //         dnsresult[item] = [{ data: `No records found for type: ${item}` }];
+                        dnsresult[item] = `No ${item} records found.`;
                     }
                 } catch (error) {
                     console.error(`Error fetching DNS record for type: ${item}`, error);
@@ -97,26 +98,32 @@
 
             // Iterate through each record type in dnsresult and create a table for each
             for (const [recordType, records] of Object.entries(dnsresult)) {
+                // Create a sub header
                 const title = document.createElement('h2');
                 title.textContent = `${recordType} Records`;
                 dnsResultDiv.appendChild(title);
 
-                // Get columns for the current record type or default to ["data", "TTL"]
-                const includeColumns = includeColumnsMapping[recordType] || ["data", "TTL"];
+                if (typeof records === "string") {
+                    // If records is a string, display the message directly
+                    const message = document.createElement('p');
+                    message.textContent = records;
+                    dnsResultDiv.appendChild(message);
+                } else {
+                    // Get columns for the current record type or default to ["data", "TTL"]
+                    const includeColumns = includeColumnsMapping[recordType] || ["data", "TTL"];
 
-                // Rename the "data" field in each record if needed
-                records.forEach(record => {
-                    if (dataRenameMapping[recordType] && record.data) {
-                        record[dataRenameMapping[recordType]] = record.data;
-                        delete record.data;
-                    }
-                });
+                    records.forEach(record => {
+                        if (dataRenameMapping[recordType] && record.data) {
+                            record[dataRenameMapping[recordType]] = record.data;
+                            delete record.data;
+                        }
+                    });
 
-                const table = createTable(records, includeColumns);
-                dnsResultDiv.appendChild(table);
+                    const table = createTable(records, includeColumns);
+                    dnsResultDiv.appendChild(table);
+                }
             }
         }
-
         // Create table with dynamic columns
         function createTable(data, includeColumns) {
             const table = document.createElement('table');
